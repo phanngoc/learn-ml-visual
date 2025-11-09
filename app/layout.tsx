@@ -29,6 +29,9 @@ export default function RootLayout({
                   <Link href="/blog" className="hover:text-blue-600 dark:hover:text-blue-400">
                     Blog
                   </Link>
+                  <Link href="/editor" className="hover:text-blue-600 dark:hover:text-blue-400">
+                    ✏️ Editor
+                  </Link>
                 </div>
               </div>
             </nav>
