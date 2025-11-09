@@ -3,6 +3,13 @@ import Link from "next/link";
 export default function BlogPage() {
   const posts = [
     {
+      slug: "deepagent-autonomous-ai",
+      title: "DeepAgent: How the New AI Agent Learns, Thinks, and Builds Its Own Tools",
+      description: "Explore how DeepAgent revolutionizes AI agents through autonomous reasoning, memory folding, and tool discovery - creating truly adaptive AI systems with interactive visualizations.",
+      date: "2025-11-09",
+      tags: ["AI", "Machine Learning", "DeepAgent", "Reinforcement Learning", "Interactive"],
+    },
+    {
       slug: "mcp-code-execution",
       title: "Code Execution với MCP - Giải Pháp Cho Token Overhead của AI Agents",
       description: "Khám phá cách Code Execution với MCP giảm 98.7% token usage, từ 150,000 xuống 2,000 tokens cho complex workflows.",
