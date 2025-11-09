@@ -1,0 +1,286 @@
+import MCPWorkflowDiagram from '@/app/components/MCPWorkflowDiagram';
+import BenefitsComparison from '@/app/components/BenefitsComparison';
+
+export const metadata = {
+  title: 'Code Execution với MCP - Giải Pháp Cho Token Overhead của AI Agents',
+  description: 'Khám phá cách Code Execution với MCP giảm 98.7% token usage, từ 150,000 xuống 2,000 tokens cho complex workflows.',
+  date: '2025-11-09',
+};
+
+# Code Execution với MCP: Giải Pháp Cho Token Overhead của AI Agents
+
+<div className="text-gray-600 dark:text-gray-400 mb-8">
+  📅 November 9, 2025 • ⏱️ 15 phút đọc
+</div>
+
+---
+
+## 🎯 Vấn Đề Lớn: Token Overhead
+
+Khi xây dựng AI agents, chúng ta đang nói về **150,000+ tokens** cho các complex workflows.
+
+Agent của bạn phải:
+- Load **mọi** tool definition ngay từ đầu
+- Pass intermediate results qua lại through context window
+- Giữ tất cả trong memory ngay cả khi không dùng đến
+
+Điều này tạo ra **3 headaches khổng lồ**:
+
+### 💸 1. Cost
+Những tokens này tăng rất nhanh. Running complex agent workflows trở nên đắt đỏ, đặc biệt là at scale.
+
+### 🐌 2. Latency
+Nhiều tokens = phản hồi chậm hơn. Agent của bạn tốn thời gian process thông tin mà có thể không cần.
+
+### 🚫 3. Tool Limitations
+Bạn hit context window limits rất nhanh, nghĩa là không thể cho agent truy cập nhiều tools như mong muốn.
+
+---
+
+## 💡 Quick Solution
+
+**Anthropic** đã tìm ra điều gì đó innovative.
+
+Thay vì agent call tools qua traditional method, bạn **treat MCP servers as code APIs**. Agent của bạn viết code để tương tác với tools, thay vì making direct tool calls cho mỗi action.
+
+Kết quả: Workflows trước đây consume **150,000 tokens** giờ chỉ dùng **2,000 tokens**.
+
+<div className="bg-green-100 dark:bg-green-900 p-6 rounded-lg my-6 border-l-4 border-green-500">
+  <div className="text-3xl font-bold text-green-700 dark:text-green-300 mb-2">
+    98.7% Token Reduction! 🎉
+  </div>
+  <p className="text-green-800 dark:text-green-200">
+    Từ 150,000 tokens → 2,000 tokens
+  </p>
+</div>
+
+---
+
+## 🔍 Deep Dive: Vấn Đề Với Traditional Tool Calling
+
+### Token Overhead Nightmare
+
+Với direct tool calling, **mọi** tool definition được load vào context window của agent ngay từ đầu.
+
+Trước khi agent của bạn thực hiện bất kỳ action nào, chúng cần nhận biết mọi tool có sẵn.
+
+Giống như đưa cho ai đó cuốn sổ tay hướng dẫn 500 trang trước khi họ có thể gọi điện thoại đơn giản.
+
+Mỗi tool definition bao gồm:
+- Tool làm gì
+- Parameters nào nó nhận
+- Format nào nó mong đợi  
+- Nó trả về gì
+
+Nhân với 50, 100, hay 200 tools, và bạn đang nhìn vào massive token consumption trước khi agent bắt đầu làm việc.
+
+### Intermediate Results Problem
+
+Mỗi khi agent của bạn calls một tool, kết quả quay lại through context window.
+
+Nếu agent cần chain nhiều tool calls lại với nhau, mỗi intermediate result thêm nhiều tokens hơn.
+
+<MCPWorkflowDiagram />
+
+**Agent calls Tool A** → Result flows through context → Agent processes → **Calls Tool B** → Another result through context → Agent processes → **Calls Tool C**...
+
+Bạn thấy vấn đề rồi đấy.
+
+Với complex workflows cần 10, 20, hay 30 tool calls, bạn đang passing massive amounts of data qua lại through context window.
+
+---
+
+## ✅ Solution: Code Execution với MCP
+
+<div className="bg-blue-50 dark:bg-blue-900 p-6 rounded-lg my-6">
+  <h3 className="text-xl font-bold mb-3">💭 Ý Tưởng Chính</h3>
+  <p className="mb-2">
+    Thay vì agent call tools directly, nó <strong>viết code</strong> để tương tác với MCP servers.
+  </p>
+  <p>
+    MCP servers trở thành <strong>code APIs</strong> - modules mà agent có thể import và dùng programmatically.
+  </p>
+</div>
+
+### So Sánh 2 Approaches
+
+**Current approach:**
+```
+Agent uses tool calling API 
+  → Model loads all tool definitions 
+  → Model calls tools directly 
+  → Results come back through context
+```
+
+**Code execution approach:**
+```
+Agent writes code 
+  → Code imports only needed tools 
+  → Code executes and processes data 
+  → Only final results return to model
+```
+
+### Ví Dụ Thực Tế
+
+Giả sử agent của bạn cần search through Salesforce records, filter results, và create summary.
+
+#### ❌ Traditional Way (150,000 tokens):
+
+```javascript
+// Traditional approach - each step is a separate tool call
+
+// Step 1: Search (tool call 1)
+search_results = agent.call_tool("search_salesforce", {
+    "query": "active accounts",
+    "fields": ["name", "revenue", "status"]
+})
+// Returns 1000 records, all flow through context
+
+// Step 2: Filter (tool call 2)  
+filtered_results = agent.call_tool("filter_records", {
+    "data": search_results,  // Passing large dataset through context
+    "condition": "revenue > 1000000"
+})
+// Filtered data flows back through context
+
+// Step 3: Summarize (tool call 3)
+summary = agent.call_tool("create_summary", {
+    "data": filtered_results  // More data through context
+})
+// Total: 3 separate tool calls, all intermediate data through context
+```
+
+#### ✅ Code Execution Way (2,000 tokens):
+
+```javascript
+// Code execution approach - single execution, all processing in environment
+
+import { salesforce } from 'mcp-servers';
+
+// Everything happens in the execution environment
+async function getSalesforceSummary() {
+    // Search
+    const results = await salesforce.search({
+        query: "active accounts",
+        fields: ["name", "revenue", "status"]
+    });
+    // 1000 records - but they never touch the model's context
+    
+    // Filter (happens right here in code)
+    const filtered = results.filter(record => record.revenue > 1000000);
+    // Filtered to 50 records - still in execution environment
+    
+    // Summarize (still in code)
+    const summary = {
+        total_accounts: filtered.length,
+        total_revenue: filtered.reduce((sum, r) => sum + r.revenue, 0),
+        top_account: filtered.sort((a, b) => b.revenue - a.revenue)[0]
+    };
+    
+    return summary;  // Only this small object goes back to the model
+}
+// Agent gets back just the summary - maybe 100 tokens
+```
+
+**Intermediate data không bao giờ touch model's context.** Tất cả xảy ra trong code execution environment.
+
+---
+
+<BenefitsComparison />
+
+---
+
+## 🎓 Khi Nào Nên Dùng Approach Này?
+
+Code execution với MCP có ý nghĩa khi bạn đang building agents cần:
+
+### ✅ Access to Many Tools
+Nếu agent của bạn connects tới dozens of services, approach này là essential. Traditional method breaks down at scale.
+
+### ✅ Complex Workflows
+Multi-step processes với data transformation, filtering, và aggregation benefit massively từ in-environment processing.
+
+### ✅ Production Applications
+Nếu bạn running agents at scale với real users, cost và latency improvements pay for implementation complexity.
+
+### ✅ Long-running Tasks
+Bất cứ thứ gì cần state persistence hoặc spans multiple sessions works better với code execution.
+
+### ❌ Simple Use Cases
+Với simple agents có 3-5 tools và simple workflows, current tool calling vẫn works fine.
+
+---
+
+## 🚀 Trade-offs Cần Lưu Ý
+
+Approach này adds complexity:
+
+- Bạn cần **secure code execution environment** với proper sandboxing
+- **Resource limits** và monitoring
+- Setup cost ban đầu cao hơn
+
+**Nhưng** với production AI applications cần scale, benefits far outweigh setup cost:
+
+✅ Cheaper operations  
+✅ Faster responses  
+✅ Ability to connect agent to hundreds of tools  
+✅ No context limits  
+
+---
+
+## 📊 Impact Metrics
+
+<div className="grid grid-cols-1 md:grid-cols-3 gap-4 my-8">
+  <div className="bg-gradient-to-br from-green-400 to-emerald-600 text-white p-6 rounded-lg text-center">
+    <div className="text-4xl font-bold mb-2">98.7%</div>
+    <div className="text-sm">Token Reduction</div>
+  </div>
+  <div className="bg-gradient-to-br from-blue-400 to-cyan-600 text-white p-6 rounded-lg text-center">
+    <div className="text-4xl font-bold mb-2">75×</div>
+    <div className="text-sm">Faster Execution</div>
+  </div>
+  <div className="bg-gradient-to-br from-purple-400 to-pink-600 text-white p-6 rounded-lg text-center">
+    <div className="text-4xl font-bold mb-2">∞</div>
+    <div className="text-sm">Tools Supported</div>
+  </div>
+</div>
+
+---
+
+## 💭 Final Thoughts
+
+Approach này **changes the economics** của building AI agents.
+
+Token savings không phải là lợi ích duy nhất - mọi thứ runs faster vì bạn executing code thay vì chaining tool calls.
+
+Agent của bạn có thể dùng loops, conditionals, và error handling với native code constructs thay vì making sequential API calls.
+
+Để implement approach này, bắt đầu bằng việc hiểu **MCP (Model Context Protocol)**. 
+
+<div className="bg-yellow-50 dark:bg-yellow-900 p-6 rounded-lg my-6 border-l-4 border-yellow-500">
+  <h3 className="text-lg font-bold mb-2">🎯 Next Steps</h3>
+  <ul className="list-disc list-inside space-y-2">
+    <li>Nghiên cứu Model Context Protocol</li>
+    <li>Setup code execution environment</li>
+    <li>Convert existing tool calls sang code-based approach</li>
+    <li>Monitor token usage và performance improvements</li>
+    <li>Scale dần dần với nhiều tools hơn</li>
+  </ul>
+</div>
+
+---
+
+## 🔗 Resources
+
+- [Anthropic MCP Documentation](https://docs.anthropic.com/mcp)
+- [MCP Specification](https://modelcontextprotocol.io)
+- [GitHub - MCP Servers](https://github.com/modelcontextprotocol/servers)
+
+---
+
+<div className="border-t border-gray-200 dark:border-gray-700 pt-8 mt-12">
+  <p className="text-center text-gray-600 dark:text-gray-400">
+    💡 Có câu hỏi hoặc feedback? Hãy để lại comment bên dưới!
+  </p>
+</div>
+

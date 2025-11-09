@@ -9,6 +9,7 @@ Blog về Machine Learning với visualizations tương tác, được xây dự
 - **TypeScript** - Type safety
 - **Tailwind CSS** - Utility-first CSS framework
 - **Framer Motion** - Animation library
+- **ReactFlow** - Interactive flow diagrams
 - **GitHub Pages** - Static site hosting
 - **GitHub Actions** - CI/CD automation
 
@@ -67,7 +68,23 @@ export const metadata = {
 Nội dung của bạn ở đây...
 ```
 
-3. Thêm bài viết vào danh sách trong `app/page.tsx` và `app/blog/page.tsx`
+3. Thêm bài viết vào danh sách trong `app/page.tsx`
+
+### 🎯 Blog Posts Hiện Có
+
+#### [Code Execution với MCP](http://localhost:3000/blog/mcp-code-execution)
+Bài viết chi tiết về cách Code Execution với MCP giảm 98.7% token usage cho AI agents, từ 150,000 xuống 2,000 tokens.
+
+**Features:**
+- 📊 Interactive workflow diagrams với ReactFlow
+- 🎯 So sánh Traditional vs Code Execution approach
+- 💡 7 key benefits với click-to-expand cards
+- 📈 Visual metrics và impact charts
+- 💻 Code examples thực tế
+
+**Interactive Components:**
+- `MCPWorkflowDiagram` - Visualization của 2 workflows với tabs switching
+- `BenefitsComparison` - 7 benefits với animations và comparison chart
 
 ## 🚀 Deployment
 
@@ -88,9 +105,15 @@ Site sẽ có địa chỉ: `https://phanngoc.github.io/learn-ml-visual`
 learn-ml-visual/
 ├── app/
 │   ├── blog/
+│   │   ├── mcp-code-execution/     # 🆕 Blog post về MCP
+│   │   │   └── page.mdx
 │   │   ├── welcome/
 │   │   │   └── page.mdx
 │   │   └── page.tsx
+│   ├── components/                 # 🆕 Interactive React components
+│   │   ├── MCPWorkflowDiagram.tsx  # ReactFlow diagram
+│   │   ├── BenefitsComparison.tsx  # Benefits showcase
+│   │   └── README.md               # Components documentation
 │   ├── globals.css
 │   ├── layout.tsx
 │   └── page.tsx
@@ -119,11 +142,53 @@ import MyComponent from "@/app/components/MyComponent";
 <MyComponent />
 ```
 
+**Ví dụ thực tế:**
+
+```mdx
+import MCPWorkflowDiagram from '@/app/components/MCPWorkflowDiagram';
+import BenefitsComparison from '@/app/components/BenefitsComparison';
+
+# Code Execution với MCP
+
+<MCPWorkflowDiagram />
+
+## Key Benefits
+
+<BenefitsComparison />
+```
+
 ### Styling
 
 Project sử dụng Tailwind CSS. Bạn có thể:
 - Thêm custom classes vào `app/globals.css`
 - Cấu hình theme trong `tailwind.config.ts`
+
+### Creating Interactive Components
+
+Các best practices khi tạo components:
+- ✅ Sử dụng `'use client'` directive cho client-side interactivity
+- ✅ Support dark mode với Tailwind classes
+- ✅ Implement responsive design (mobile-friendly)
+- ✅ Add meaningful animations với Framer Motion
+- ✅ Document component trong `app/components/README.md`
+
+**Component template:**
+
+```tsx
+'use client';
+
+import React, { useState } from 'react';
+
+export default function MyComponent() {
+  const [state, setState] = useState(false);
+  
+  return (
+    <div className="my-8 p-6 rounded-lg bg-white dark:bg-gray-800">
+      {/* Your interactive content */}
+    </div>
+  );
+}
+```
 
 ## 📄 License
 
